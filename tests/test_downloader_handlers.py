@@ -14,7 +14,6 @@ from w3lib.url import path_to_file_uri
 from scrapy.core.downloader.handlers import DownloadHandlers
 from scrapy.core.downloader.handlers.datauri import DataURIDownloadHandler
 from scrapy.core.downloader.handlers.file import FileDownloadHandler
-from scrapy.core.downloader.handlers.s3 import S3DownloadHandler
 from scrapy.exceptions import NotConfigured
 from scrapy.http import Request, Response
 from scrapy.responsetypes import responsetypes
@@ -128,6 +127,8 @@ class HttpDownloadHandlerMock:
 @pytest.mark.requires_botocore
 class TestS3Anon:
     def setup_method(self):
+        from scrapy.core.downloader.handlers.s3 import S3DownloadHandler
+
         crawler = get_crawler()
         self.s3reqh = build_from_crawler(
             S3DownloadHandler,
