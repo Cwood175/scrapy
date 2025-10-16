@@ -3,7 +3,7 @@ from typing import Any
 
 from OpenSSL import SSL
 from service_identity.exceptions import CertificateError
-from twisted.internet._sslverify import (
+from twisted.internet.ssl import (
     ClientTLSOptions,
     VerificationError,
     verifyHostname,

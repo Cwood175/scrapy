@@ -4,12 +4,12 @@ import warnings
 from typing import TYPE_CHECKING, Any
 
 from OpenSSL import SSL
-from twisted.internet._sslverify import _setAcceptableProtocols
 from twisted.internet.ssl import (
     AcceptableCiphers,
     CertificateOptions,
     optionsForClientTLS,
     platformTrust,
+    verifyHostname,
 )
 from twisted.web.client import BrowserLikePolicyForHTTPS
 from twisted.web.iweb import IPolicyForHTTPS
@@ -26,7 +26,7 @@ from scrapy.utils.deprecate import method_is_overridden
 from scrapy.utils.misc import build_from_crawler, load_object
 
 if TYPE_CHECKING:
-    from twisted.internet._sslverify import ClientTLSOptions
+    from twisted.internet.ssl import ClientTLSOptions
 
     # typing.Self requires Python 3.11
     from typing_extensions import Self
@@ -188,7 +188,7 @@ class AcceptableProtocolsContextFactory:
         options: ClientTLSOptions = self._wrapped_context_factory.creatorForNetloc(
             hostname, port
         )
-        _setAcceptableProtocols(options._ctx, self._acceptable_protocols)
+        options._ctx.setAcceptableProtocols(self._acceptable_protocols)
         return options
 
 
