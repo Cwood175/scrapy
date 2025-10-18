@@ -6,7 +6,6 @@ from service_identity.exceptions import CertificateError
 from twisted.internet._sslverify import (
     ClientTLSOptions,
     VerificationError,
-    verifyHostname,
 )
 from twisted.internet.ssl import AcceptableCiphers
 

@@ -4,7 +4,6 @@ import warnings
 from typing import TYPE_CHECKING, Any
 
 from OpenSSL import SSL
-from twisted.internet._sslverify import _setAcceptableProtocols
 from twisted.internet.ssl import (
     AcceptableCiphers,
     CertificateOptions,
