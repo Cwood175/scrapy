@@ -236,8 +236,8 @@ class TunnelingMixin:
         respm = type(self)._responseMatcher.match(self._connectBuffer)
         if respm and int(respm.group("status")) == 200:
             # set proper Server Name Indication extension
-            sslOptions = self._contextFactory.creatorForNetloc(  # type: ignore[call-arg,misc]
-                self._tunneledHost, self._tunneledPort
+            sslOptions = self._contextFactory.creatorForNetloc(
+                to_bytes(self._tunneledHost), self._tunneledPort
             )
             self._protocol.transport.startTLS(sslOptions)
             self._tunnelReadyDeferred.callback(self._protocol)

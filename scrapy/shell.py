@@ -152,8 +152,11 @@ class Shell:
                 request.meta["handle_httpstatus_all"] = True
         response = None
         with contextlib.suppress(IgnoreRequest):
-            response, spider = threads.blockingCallFromThread(
-                reactor, self._schedule, request, spider
+            response, spider = cast(
+                tuple[Response, Spider | None],
+                threads.blockingCallFromThread(
+                    reactor, self._schedule, request, spider
+                ),
             )
         self.populate_vars(response, request, spider)
 
