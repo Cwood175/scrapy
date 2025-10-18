@@ -98,7 +98,10 @@ class BaseTestProxyConnect:
 
     @inlineCallbacks
     def test_https_tunnel_auth_error(self):
-        os.environ["https_proxy"] = _wrong_credentials(os.environ["https_proxy"])
+        proxy = os.environ.get("https_proxy")
+        if proxy is None:
+            raise RuntimeError("https_proxy not set")
+        os.environ["https_proxy"] = _wrong_credentials(proxy)
         crawler = get_crawler(SimpleSpider)
         with LogCapture() as log:
             yield crawler.crawl(self.mockserver.url("/status?n=200", is_secure=True))

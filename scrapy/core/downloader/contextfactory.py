@@ -4,7 +4,7 @@ import warnings
 from typing import TYPE_CHECKING, Any
 
 from OpenSSL import SSL
-from twisted.internet._sslverify import _setAcceptableProtocols
+from twisted.internet._sslverify import _setAcceptableProtocols as _setAcceptableProtocolsDeprecated
 from twisted.internet.ssl import (
     AcceptableCiphers,
     CertificateOptions,
@@ -136,7 +136,7 @@ class ScrapyClientContextFactory(BrowserLikePolicyForHTTPS):
     def creatorForNetloc(self, hostname: bytes, port: int) -> ClientTLSOptions:
         return ScrapyClientTLSOptions(
             hostname.decode("ascii"),
-            self.getContext(),
+            self.getCertificateOptions().getContext(),
             verbose_logging=self.tls_verbose_logging,
         )
 

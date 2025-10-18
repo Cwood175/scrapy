@@ -230,6 +230,7 @@ class S3FilesStore:
             Metadata={k: str(v) for k, v in (meta or {}).items()},
             ACL=self.POLICY,
             **extra,
+            is_async=False,
         )
 
     def _headers_to_botocore_kwargs(self, headers: dict[str, Any]) -> dict[str, Any]:
@@ -346,6 +347,7 @@ class GCSFilesStore:
             data=buf.getvalue(),
             content_type=self._get_content_type(headers),
             predefined_acl=self.POLICY,
+            is_async=False,
         )
 
 

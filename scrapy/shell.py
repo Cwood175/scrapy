@@ -116,6 +116,22 @@ class Shell:
         d.addCallback(lambda x: (x, spider))
         return d
 
+    def _open_spider(self, request: Request, spider: Spider | None) -> defer.Deferred[Response]:
+        if spider is None:
+            spider = self.crawler.spider
+        return self.crawler.engine.open_spider(spider, request)
+
+    def _request_deferred(self, request: Request) -> defer.Deferred[Response]:
+        return self.crawler.engine.request_deferred(request)
+
+    def populate_vars(self, response: Response | None, request: Request | None, spider: Spider | None) -> None:
+        if response is not None:
+            self._populate_response_vars(response, request, spider)
+        if request is not None:
+            self._populate_request_vars(request, spider)
+        if spider is not None:
+            self._populate_spider_vars(spider)
+
     @deferred_f_from_coro_f
     async def _open_spider(self, request: Request, spider: Spider | None) -> None:
         if self.spider:
