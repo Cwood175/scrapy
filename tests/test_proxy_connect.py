@@ -28,7 +28,9 @@ sys.argv[0] = "mitmdump"
 sys.exit(mitmdump())
         """
         cert_path = Path(__file__).parent.resolve() / "keys"
-        self.proc = Popen(
+        import subprocess
+        # Start mitmdump and capture both stdout and stderr
+        self.proc = subprocess.Popen(
             [
                 sys.executable,
                 "-u",
@@ -44,10 +46,42 @@ sys.exit(mitmdump())
                 f"confdir={cert_path}",
                 "--ssl-insecure",
             ],
-            stdout=PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
-        line = self.proc.stdout.readline().decode("utf-8")
-        host_port = re.search(r"listening at (?:http://)?([^:]+:\d+)", line).group(1)
+        # Read output until we find the listening address or timeout
+        import time
+        host_port = None
+        deadline = time.time() + 5.0
+        buf = []
+        while time.time() < deadline:
+            out = self.proc.stdout.readline()
+            if not out:
+                time.sleep(0.01)
+                continue
+            line = out.decode("utf-8", errors="replace")
+            buf.append(line)
+            m = re.search(r"listening at (?:http://)?([^:]+:\d+)", line)
+            if m:
+                host_port = m.group(1)
+                break
+        if not host_port:
+            # try remaining output
+            try:
+                remaining = self.proc.stdout.read() or b""
+                remaining_decoded = remaining.decode("utf-8", errors="replace")
+            except Exception:
+                remaining_decoded = ""
+            buf.append(remaining_decoded)
+            m = re.search(r"listening at (?:http://)?([^:]+:\d+)", "".join(buf))
+            if m:
+                host_port = m.group(1)
+        if not host_port:
+            try:
+                self.proc.kill()
+            except Exception:
+                pass
+            raise RuntimeError("Could not determine mitmdump listening address from output")
         return f"http://{self.auth_user}:{self.auth_pass}@{host_port}"
 
     def stop(self):
@@ -83,10 +117,14 @@ class TestProxyConnect:
         proxy_url = self._proxy.start()
         os.environ["https_proxy"] = proxy_url
         os.environ["http_proxy"] = proxy_url
+        os.environ["HTTPS_PROXY"] = proxy_url
+        os.environ["HTTP_PROXY"] = proxy_url
 
     def teardown_method(self):
         self._proxy.stop()
-        os.environ = self._oldenv
+        # Restore environment without rebinding os.environ to a plain dict
+        os.environ.clear()
+        os.environ.update(self._oldenv)
 
     @inlineCallbacks
     def test_https_connect_tunnel(self):
