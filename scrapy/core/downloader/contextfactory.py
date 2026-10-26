@@ -4,7 +4,6 @@ import warnings
 from typing import TYPE_CHECKING, Any
 
 from OpenSSL import SSL
-from twisted.internet._sslverify import _setAcceptableProtocols
 from twisted.internet.ssl import (
     AcceptableCiphers,
     CertificateOptions,
@@ -24,6 +23,14 @@ from scrapy.core.downloader.tls import (
 from scrapy.exceptions import ScrapyDeprecationWarning
 from scrapy.utils.deprecate import method_is_overridden
 from scrapy.utils.misc import build_from_crawler, load_object
+
+try:
+    from twisted.internet._sslverify import _setAcceptableProtocols
+except ImportError:
+
+    def _setAcceptableProtocols(context, acceptable_protocols):
+        context.set_alpn_protos(list(acceptable_protocols))
+
 
 if TYPE_CHECKING:
     from twisted.internet._sslverify import ClientTLSOptions

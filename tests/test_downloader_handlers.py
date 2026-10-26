@@ -14,7 +14,16 @@ from w3lib.url import path_to_file_uri
 from scrapy.core.downloader.handlers import DownloadHandlers
 from scrapy.core.downloader.handlers.datauri import DataURIDownloadHandler
 from scrapy.core.downloader.handlers.file import FileDownloadHandler
-from scrapy.core.downloader.handlers.s3 import S3DownloadHandler
+
+try:
+    from scrapy.core.downloader.handlers.s3 import S3DownloadHandler
+except ImportError:
+
+    class S3DownloadHandler:
+        def __init__(self, *args, **kwargs):
+            pytest.skip("S3 download handler is unavailable")
+
+
 from scrapy.exceptions import NotConfigured
 from scrapy.http import Request, Response
 from scrapy.responsetypes import responsetypes

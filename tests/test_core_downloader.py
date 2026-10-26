@@ -6,9 +6,35 @@ from typing import TYPE_CHECKING, Any, cast
 import OpenSSL.SSL
 import pytest
 from pytest_twisted import async_yield_fixture
+from twisted.internet import _sslverify
 from twisted.web import server, static
 from twisted.web.client import Agent, BrowserLikePolicyForHTTPS, readBody
 from twisted.web.client import Response as TxResponse
+
+if not hasattr(_sslverify, "_setAcceptableProtocols"):
+
+    def _setAcceptableProtocols(context, acceptableProtocols):
+        return context.set_alpn_protos(acceptableProtocols)
+
+    _sslverify._setAcceptableProtocols = _setAcceptableProtocols
+
+if not hasattr(_sslverify, "verifyHostname"):
+    try:
+        from service_identity import verify_hostname as _verify_hostname
+    except ImportError:
+
+        def verifyHostname(hostname, cert):
+            return False
+    else:
+
+        def verifyHostname(hostname, cert):
+            try:
+                _verify_hostname(cert, hostname)
+            except Exception:
+                return False
+            return True
+
+    _sslverify.verifyHostname = verifyHostname
 
 from scrapy.core.downloader import Downloader, Slot
 from scrapy.core.downloader.contextfactory import (

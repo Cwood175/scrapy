@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 
 import OpenSSL.SSL
 import pytest
+import twisted.internet._sslverify
 from pytest_twisted import async_yield_fixture
 from twisted.internet import defer
 from twisted.internet.defer import inlineCallbacks
@@ -15,6 +16,13 @@ from twisted.internet.testing import StringTransport
 from twisted.protocols.policies import WrappingFactory
 from twisted.web import resource, server, static, util
 from twisted.web.client import _makeGetterFactory
+
+if not hasattr(twisted.internet._sslverify, "_setAcceptableProtocols"):
+
+    def _setAcceptableProtocols(context, acceptableProtocols):
+        context.set_alpn_protos(acceptableProtocols)
+
+    twisted.internet._sslverify._setAcceptableProtocols = _setAcceptableProtocols
 
 from scrapy.core.downloader import webclient as client
 from scrapy.core.downloader.contextfactory import ScrapyClientContextFactory

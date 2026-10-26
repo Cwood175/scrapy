@@ -4,6 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
+from twisted.internet import _sslverify
+
+if not hasattr(_sslverify, "_setAcceptableProtocols") or not hasattr(
+    _sslverify, "verifyHostname"
+):
+    pytest.skip("Twisted version is not supported", allow_module_level=True)
+
 from scrapy.core.downloader.handlers.http11 import HTTP11DownloadHandler
 from tests.test_downloader_handlers_http_base import (
     TestHttp11Base,
