@@ -3,12 +3,8 @@ from typing import Any
 
 from OpenSSL import SSL
 from service_identity.exceptions import CertificateError
-from twisted.internet._sslverify import (
-    ClientTLSOptions,
-    VerificationError,
-    verifyHostname,
-)
-from twisted.internet.ssl import AcceptableCiphers
+from twisted.internet._sslverify import ClientTLSOptions
+from twisted.internet.ssl import AcceptableCiphers, VerificationError, verifyHostname
 
 from scrapy.utils.ssl import get_temp_key_info, x509name_to_string
 
@@ -41,7 +37,7 @@ class ScrapyClientTLSOptions(ClientTLSOptions):
     """
 
     def __init__(self, hostname: str, ctx: SSL.Context, verbose_logging: bool = False):
-        super().__init__(hostname, ctx)
+        super().__init__(hostname.encode("ascii"), ctx)
         self.verbose_logging: bool = verbose_logging
 
     def _identityVerifyingInfoCallback(

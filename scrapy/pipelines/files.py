@@ -386,7 +386,7 @@ class FTPFilesStore:
             port=self.port,
             username=self.username,
             password=self.password,
-            use_active_mode=self.USE_ACTIVE_MODE,
+            use_active_mode=bool(self.USE_ACTIVE_MODE),
         )
 
     def stat_file(

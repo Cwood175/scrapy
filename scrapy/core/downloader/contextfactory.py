@@ -4,7 +4,6 @@ import warnings
 from typing import TYPE_CHECKING, Any
 
 from OpenSSL import SSL
-from twisted.internet._sslverify import _setAcceptableProtocols
 from twisted.internet.ssl import (
     AcceptableCiphers,
     CertificateOptions,
@@ -188,7 +187,13 @@ class AcceptableProtocolsContextFactory:
         options: ClientTLSOptions = self._wrapped_context_factory.creatorForNetloc(
             hostname, port
         )
-        _setAcceptableProtocols(options._ctx, self._acceptable_protocols)
+        context = options._ctx
+        context.set_alpn_protos(
+            b"".join(
+                len(protocol).to_bytes(1, "big") + protocol
+                for protocol in self._acceptable_protocols
+            )
+        )
         return options
 
 

@@ -150,7 +150,7 @@ class Shell:
                 )
             else:
                 request.meta["handle_httpstatus_all"] = True
-        response = None
+        response: Response | None = None
         with contextlib.suppress(IgnoreRequest):
             response, spider = threads.blockingCallFromThread(
                 reactor, self._schedule, request, spider
